@@ -1,157 +1,191 @@
-// Mobile Navigation Toggle
-const hamburger = document.querySelector('.hamburger');
-const navMenu = document.querySelector('.nav-menu');
+// Mobile Menu Toggle
+const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+const navLinks = document.getElementById('nav-links');
 
-hamburger.addEventListener('click', () => {
-    hamburger.classList.toggle('active');
-    navMenu.classList.toggle('active');
+mobileMenuBtn.addEventListener('click', () => {
+    mobileMenuBtn.classList.toggle('active');
+    navLinks.classList.toggle('active');
 });
 
-// Close mobile menu when clicking on a link
-document.querySelectorAll('.nav-link').forEach(n => n.addEventListener('click', () => {
-    hamburger.classList.remove('active');
-    navMenu.classList.remove('active');
-}));
-
-// Smooth scrolling for navigation links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
-        if (href !== '#') {
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        }
+// Close mobile menu when clicking a link
+navLinks.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+        mobileMenuBtn.classList.remove('active');
+        navLinks.classList.remove('active');
     });
 });
 
-// Header background on scroll
+// Header scroll effect
+const header = document.getElementById('header');
+let lastScroll = 0;
+
 window.addEventListener('scroll', () => {
-    const header = document.querySelector('.header');
-    if (window.scrollY > 100) {
-        header.style.background = 'rgba(10, 14, 39, 0.95)';
-        header.style.boxShadow = '0 2px 20px rgba(0, 217, 255, 0.1)';
+    const currentScroll = window.pageYOffset;
+    
+    if (currentScroll > 100) {
+        header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
     } else {
-        header.style.background = 'rgba(10, 14, 39, 0.8)';
         header.style.boxShadow = 'none';
     }
-});
-
-// Active navigation link highlighting
-window.addEventListener('scroll', () => {
-    let current = '';
-    const sections = document.querySelectorAll('section');
     
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        if (scrollY >= (sectionTop - 200)) {
-            current = section.getAttribute('id');
-        }
-    });
+    lastScroll = currentScroll;
+});
 
-    document.querySelectorAll('.nav-link').forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href') === `#${current}`) {
-            link.classList.add('active');
+// Smooth scroll for anchor links
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        const target = document.querySelector(this.getAttribute('href'));
+        if (target) {
+            const headerHeight = header.offsetHeight;
+            const targetPosition = target.offsetTop - headerHeight;
+            
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth'
+            });
         }
     });
 });
 
-// Intersection Observer for animations
+// Animate skill bars on scroll
 const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
+    threshold: 0.5,
+    rootMargin: '0px'
 };
 
-const observer = new IntersectionObserver((entries) => {
+const skillObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
+            const skillBars = entry.target.querySelectorAll('.skill-progress');
+            skillBars.forEach(bar => {
+                const level = bar.getAttribute('data-level');
+                bar.style.width = level + '%';
+            });
+            skillObserver.unobserve(entry.target);
         }
     });
 }, observerOptions);
 
-// Observe elements for animation
-document.querySelectorAll('.skill-category, .project-card, .timeline-item, .stat, .event-card, .highlight-box').forEach(el => {
-    el.style.opacity = '0';
-    el.style.transform = 'translateY(30px)';
-    el.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    observer.observe(el);
-});
-
-// Parallax effect for hero section
-window.addEventListener('scroll', () => {
-    const scrolled = window.pageYOffset;
-    const hero = document.querySelector('.hero');
-    if (hero && scrolled < hero.offsetHeight) {
-        hero.style.transform = `translateY(${scrolled * 0.3}px)`;
-    }
-});
-
-// Skills animation on scroll
-const skillItems = document.querySelectorAll('.skill-item');
-const skillObserver = new IntersectionObserver((entries) => {
-    entries.forEach((entry, index) => {
-        if (entry.isIntersecting) {
-            setTimeout(() => {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateX(0) scale(1)';
-            }, index * 50);
-        }
-    });
-}, { threshold: 0.5 });
-
-skillItems.forEach(item => {
-    item.style.opacity = '0';
-    item.style.transform = 'translateX(-20px) scale(0.9)';
-    item.style.transition = 'all 0.5s ease';
-    skillObserver.observe(item);
-});
-
-// Counter animation for stats
-function animateCounter(element, target, duration = 2000) {
-    let start = 0;
-    const increment = target / (duration / 16);
-    
-    function updateCounter() {
-        start += increment;
-        if (start < target) {
-            element.textContent = Math.floor(start) + (target > 1 ? '+' : '');
-            requestAnimationFrame(updateCounter);
-        } else {
-            element.textContent = target + (target > 1 ? '+' : '');
-        }
-    }
-    
-    updateCounter();
+const skillsSection = document.getElementById('skills');
+if (skillsSection) {
+    skillObserver.observe(skillsSection);
 }
 
-// Observe stats for counter animation
-const statsObserver = new IntersectionObserver((entries) => {
+// Animate elements on scroll
+const fadeObserver = new IntersectionObserver((entries) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
-            const number = entry.target.querySelector('.stat-number');
-            if (number) {
-                const target = parseInt(number.textContent) || parseInt(number.getAttribute('data-target')) || 0;
-                animateCounter(number, target);
-                statsObserver.unobserve(entry.target);
-            }
+            entry.target.classList.add('fade-in');
         }
     });
-}, { threshold: 0.5 });
-
-document.querySelectorAll('.stat').forEach(stat => {
-    statsObserver.observe(stat);
+}, {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
 });
 
-// Add loading animation
-window.addEventListener('load', () => {
-    document.body.classList.add('loaded');
+// Observe sections for fade-in animation
+document.querySelectorAll('section').forEach(section => {
+    section.style.opacity = '0';
+    section.style.transform = 'translateY(20px)';
+    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    fadeObserver.observe(section);
 });
+
+// Add fade-in class styles
+const style = document.createElement('style');
+style.textContent = `
+    .fade-in {
+        opacity: 1 !important;
+        transform: translateY(0) !important;
+    }
+`;
+document.head.appendChild(style);
+
+// Form submission handling
+const contactForm = document.getElementById('contact-form');
+if (contactForm) {
+    contactForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const name = formData.get('name');
+        const email = formData.get('email');
+        const message = formData.get('message');
+        
+        // Here you would typically send the data to a server
+        // For now, we'll just show an alert
+        alert(`Obrigado ${name}! Sua mensagem foi recebida.\n\nEm breve entrarei em contato pelo email: ${email}`);
+        
+        // Reset form
+        this.reset();
+    });
+}
+
+// Active nav link on scroll
+const sections = document.querySelectorAll('section[id]');
+
+window.addEventListener('scroll', () => {
+    const scrollY = window.pageYOffset;
+    
+    sections.forEach(section => {
+        const sectionHeight = section.offsetHeight;
+        const sectionTop = section.offsetTop - 100;
+        const sectionId = section.getAttribute('id');
+        
+        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === `#${sectionId}`) {
+                    link.style.color = '#58a6ff';
+                } else {
+                    link.style.color = '';
+                }
+            });
+        }
+    });
+});
+
+// Typing effect for hero (optional)
+function typeWriter(element, text, speed = 100) {
+    let i = 0;
+    element.textContent = '';
+    
+    function type() {
+        if (i < text.length) {
+            element.textContent += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
+        }
+    }
+    
+    type();
+}
+
+// Initialize typing effect on load (uncomment if you want the effect)
+// window.addEventListener('load', () => {
+//     const heroTitle = document.querySelector('.hero-title');
+//     if (heroTitle) {
+//         typeWriter(heroTitle, 'Vinicius de Souza Lacerda', 80);
+//     }
+// });
+
+// Card hover effect enhancement
+document.querySelectorAll('.highlight-card, .experience-card, .event-card, .skill-category, .course-card, .education-card, .project-card').forEach(card => {
+    card.addEventListener('mouseenter', function() {
+        this.style.transform = 'translateY(-2px)';
+    });
+    
+    card.addEventListener('mouseleave', function() {
+        this.style.transform = 'translateY(0)';
+    });
+});
+
+// Initialize skill bars with 0 width
+document.querySelectorAll('.skill-progress').forEach(bar => {
+    bar.style.width = '0%';
+});
+
+// Console message
+console.log('%c Ola! Voce encontrou meu portfolio! ', 'background: #58a6ff; color: #0d1117; font-size: 14px; padding: 10px; border-radius: 5px;');
+console.log('%c Desenvolvido por Vinicius de Souza Lacerda ', 'color: #8b949e; font-size: 12px;');
