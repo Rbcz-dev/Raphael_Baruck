@@ -6,11 +6,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
+        :root {
+            --bg: #0a1433;
+            --bg-card: #0f1d4a;
+            --bg-secondary: #162561;
+            --foreground: #ffffff;
+            --muted: #b8c5d6;
+            --primary: #eec511;
+            --primary-dark: #2a4db8;
+            --border: #D4AF37;
+            --accent: #D4AF37;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
         body {
             margin: 0;
-            font-family: Arial, sans-serif;
-            background: #0f172a;
-            color: #fff;
+            font-family: var(--font-sans);
+            background: linear-gradient(180deg, var(--bg), #070e24);
+            color: var(--foreground);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -18,43 +35,63 @@
         }
 
         .thanks-container {
-            background: #020617;
-            padding: 40px;
-            border-radius: 12px;
-            max-width: 420px;
+            background: linear-gradient(
+                160deg,
+                var(--bg-card),
+                var(--bg-secondary)
+            );
+            padding: 3rem 2.5rem;
+            border-radius: 20px;
+            max-width: 440px;
             width: 90%;
             text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            border: 1px solid rgba(212, 175, 55, 0.25);
+            box-shadow:
+                0 25px 60px rgba(0, 0, 0, 0.45),
+                inset 0 1px 0 rgba(255, 255, 255, 0.04);
         }
 
         .thanks-container svg {
-            width: 64px;
-            height: 64px;
-            color: #22c55e;
-            margin-bottom: 20px;
+            width: 72px;
+            height: 72px;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
         }
 
         h1 {
-            margin-bottom: 10px;
+            font-size: 1.9rem;
+            margin-bottom: 0.6rem;
+            letter-spacing: -0.02em;
         }
 
         p {
-            opacity: 0.85;
-            margin-bottom: 25px;
+            color: var(--muted);
+            font-size: 1rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
         }
 
         a {
-            display: inline-block;
-            padding: 12px 20px;
-            background: #22c55e;
-            color: #020617;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.6rem;
+            background: linear-gradient(
+                135deg,
+                var(--primary),
+                var(--accent)
+            );
+            color: #0a1433;
             text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
+            border-radius: 10px;
+            font-weight: 700;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.35);
         }
 
         a:hover {
-            opacity: 0.9;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(212, 175, 55, 0.5);
         }
     </style>
 </head>
@@ -67,8 +104,11 @@
                   d="M9 12l2 2 4-4m7 2a9 9 0 11-18 0 9 9 0 0118 0z" />
         </svg>
 
-        <h1>Mensagem enviada!</h1>
-        <p>Obrigado por entrar em contato. Em breve retornarei sua mensagem.</p>
+        <h1>Mensagem enviada com sucesso</h1>
+        <p>
+            Obrigado pelo contato.  
+            Sua mensagem foi recebida e retornarei o mais breve possível.
+        </p>
 
         <a href="index.html">Voltar para o site</a>
     </div>
