@@ -102,26 +102,6 @@ style.textContent = `
 `;
 document.head.appendChild(style);
 
-// Form submission handling
-const contactForm = document.getElementById('contact-form');
-if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const formData = new FormData(this);
-        const name = formData.get('name');
-        const email = formData.get('email');
-        const message = formData.get('message');
-        
-        // Here you would typically send the data to a server
-        // For now, we'll just show an alert
-        alert(`Obrigado ${name}! Sua mensagem foi recebida.\n\nEm breve entrarei em contato pelo email: ${email}`);
-        
-        // Reset form
-        this.reset();
-    });
-}
-
 // Active nav link on scroll
 const sections = document.querySelectorAll('section[id]');
 
