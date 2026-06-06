@@ -1,171 +1,176 @@
-// Mobile Menu Toggle
-const mobileMenuBtn = document.getElementById('mobile-menu-btn');
-const navLinks = document.getElementById('nav-links');
+/* ================================================
+   RAPHAEL BARUCK — PORTFOLIO SCRIPT
+   ================================================ */
 
-mobileMenuBtn.addEventListener('click', () => {
-    mobileMenuBtn.classList.toggle('active');
-    navLinks.classList.toggle('active');
-});
+'use strict';
 
-// Close mobile menu when clicking a link
-navLinks.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-        mobileMenuBtn.classList.remove('active');
-        navLinks.classList.remove('active');
-    });
-});
+/* ── Custom cursor ── */
+const cursor = document.getElementById('cursor');
+if (cursor && window.matchMedia('(hover:hover)').matches) {
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px';
+    cursor.style.top  = e.clientY + 'px';
+  });
+  document.querySelectorAll('a, button, .project-card, .about-card, .event-item').forEach(el => {
+    el.addEventListener('mouseenter', () => cursor.classList.add('grow'));
+    el.addEventListener('mouseleave', () => cursor.classList.remove('grow'));
+  });
+}
 
-// Header scroll effect
+/* ── Header scroll state ── */
 const header = document.getElementById('header');
-let lastScroll = 0;
-
-window.addEventListener('scroll', () => {
-    const currentScroll = window.pageYOffset;
-    
-    if (currentScroll > 100) {
-        header.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.3)';
-    } else {
-        header.style.boxShadow = 'none';
-    }
-    
-    lastScroll = currentScroll;
-});
-
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
-        if (target) {
-            const headerHeight = header.offsetHeight;
-            const targetPosition = target.offsetTop - headerHeight;
-            
-            window.scrollTo({
-                top: targetPosition,
-                behavior: 'smooth'
-            });
-        }
-    });
-});
-
-// Animate skill bars on scroll
-const observerOptions = {
-    threshold: 0.5,
-    rootMargin: '0px'
+const onScroll = () => {
+  header.classList.toggle('scrolled', window.scrollY > 60);
 };
+window.addEventListener('scroll', onScroll, { passive: true });
+onScroll();
 
-const skillObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const skillBars = entry.target.querySelectorAll('.skill-progress');
-            skillBars.forEach(bar => {
-                const level = bar.getAttribute('data-level');
-                bar.style.width = level + '%';
-            });
-            skillObserver.unobserve(entry.target);
-        }
-    });
-}, observerOptions);
+/* ── Mobile nav ── */
+const hamburger = document.getElementById('hamburger');
+const mobileNav = document.getElementById('mobile-nav');
+let navOpen = false;
 
-const skillsSection = document.getElementById('skills');
-if (skillsSection) {
-    skillObserver.observe(skillsSection);
+function toggleMobileNav() {
+  navOpen = !navOpen;
+  hamburger.classList.toggle('open', navOpen);
+  mobileNav.classList.toggle('open', navOpen);
+  document.body.style.overflow = navOpen ? 'hidden' : '';
 }
 
-// Animate elements on scroll
-const fadeObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('fade-in');
-        }
-    });
-}, {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
+function closeMobileNav() {
+  navOpen = false;
+  hamburger.classList.remove('open');
+  mobileNav.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* Close on ESC */
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
+
+/* ── Smooth scroll (offset for fixed header) ── */
+document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+  anchor.addEventListener('click', function(e) {
+    const target = document.querySelector(this.getAttribute('href'));
+    if (!target) return;
+    e.preventDefault();
+    const offset = header.offsetHeight + 16;
+    window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
+  });
 });
 
-// Observe sections for fade-in animation
-document.querySelectorAll('section').forEach(section => {
-    section.style.opacity = '0';
-    section.style.transform = 'translateY(20px)';
-    section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    fadeObserver.observe(section);
-});
-
-// Add fade-in class styles
-const style = document.createElement('style');
-style.textContent = `
-    .fade-in {
-        opacity: 1 !important;
-        transform: translateY(0) !important;
+/* ── Reveal on scroll ── */
+const revealEls = document.querySelectorAll('.reveal');
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
     }
-`;
-document.head.appendChild(style);
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+revealEls.forEach(el => revealObserver.observe(el));
 
-// Active nav link on scroll
+/* ── Skill bars ── */
+const skillFills = document.querySelectorAll('.skill-fill');
+skillFills.forEach(bar => { bar.style.width = '0%'; });
+
+const skillObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.skill-fill').forEach(bar => {
+        bar.style.width = bar.dataset.level + '%';
+      });
+      skillObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+
+document.querySelectorAll('.skill-cat').forEach(cat => skillObserver.observe(cat));
+
+/* ── Active nav link ── */
 const sections = document.querySelectorAll('section[id]');
+const navAnchors = document.querySelectorAll('.nav-links a');
 
-window.addEventListener('scroll', () => {
-    const scrollY = window.pageYOffset;
-    
-    sections.forEach(section => {
-        const sectionHeight = section.offsetHeight;
-        const sectionTop = section.offsetTop - 100;
-        const sectionId = section.getAttribute('id');
-        
-        if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
-            document.querySelectorAll('.nav-links a').forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href') === `#${sectionId}`) {
-                    link.style.color = '#58a6ff';
-                } else {
-                    link.style.color = '';
-                }
-            });
-        }
-    });
-});
-
-// Typing effect for hero (optional)
-function typeWriter(element, text, speed = 100) {
-    let i = 0;
-    element.textContent = '';
-    
-    function type() {
-        if (i < text.length) {
-            element.textContent += text.charAt(i);
-            i++;
-            setTimeout(type, speed);
-        }
+const activeObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      navAnchors.forEach(a => {
+        const active = a.getAttribute('href') === '#' + entry.target.id;
+        a.style.color = active ? 'var(--lime)' : '';
+      });
     }
-    
-    type();
+  });
+}, { threshold: 0.45 });
+
+sections.forEach(s => activeObserver.observe(s));
+
+/* ── Animated counter (hero stats) ── */
+function animateCount(el, target, duration = 1200) {
+  const isFloat = target % 1 !== 0;
+  const suffix = el.dataset.suffix || '';
+  let start = null;
+  const step = ts => {
+    if (!start) start = ts;
+    const progress = Math.min((ts - start) / duration, 1);
+    const ease = 1 - Math.pow(1 - progress, 3);
+    const val = Math.floor(ease * target);
+    el.textContent = val + (progress < 1 ? '' : suffix);
+    if (progress < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
 }
 
-// Initialize typing effect on load (uncomment if you want the effect)
-// window.addEventListener('load', () => {
-//     const heroTitle = document.querySelector('.hero-title');
-//     if (heroTitle) {
-//         typeWriter(heroTitle, 'Vinicius de Souza Lacerda', 80);
-//     }
-// });
+const statObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('.hero-stat-num').forEach(num => {
+        const raw = num.textContent.replace(/\D/g,'');
+        const plus = num.textContent.includes('+');
+        const orig = num.textContent;
+        if (raw) {
+          animateCount(num, parseInt(raw), 1000);
+          if (plus) setTimeout(() => { num.textContent = raw + '+'; }, 1050);
+        }
+      });
+      statObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.5 });
 
-// Card hover effect enhancement
-document.querySelectorAll('.highlight-card, .experience-card, .event-card, .skill-category, .course-card, .education-card, .project-card').forEach(card => {
-    card.addEventListener('mouseenter', function() {
-        this.style.transform = 'translateY(-2px)';
+const heroStats = document.querySelector('.hero-stats');
+if (heroStats) statObserver.observe(heroStats);
+
+/* ── Project cards — subtle tilt on hover (desktop) ── */
+if (window.matchMedia('(hover:hover)').matches) {
+  document.querySelectorAll('.project-card').forEach(card => {
+    card.addEventListener('mousemove', e => {
+      const rect = card.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width  - 0.5;
+      const y = (e.clientY - rect.top)  / rect.height - 0.5;
+      card.style.transform = `perspective(600px) rotateY(${x*4}deg) rotateX(${-y*4}deg) translateZ(4px)`;
     });
-    
-    card.addEventListener('mouseleave', function() {
-        this.style.transform = 'translateY(0)';
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = '';
     });
-});
+  });
+}
 
-// Initialize skill bars with 0 width
-document.querySelectorAll('.skill-progress').forEach(bar => {
-    bar.style.width = '0%';
-});
+/* ── Form UX: loading state ── */
+const form = document.getElementById('contact-form');
+if (form) {
+  form.addEventListener('submit', () => {
+    const btn = form.querySelector('button[type="submit"]');
+    if (btn) {
+      btn.textContent = 'Enviando…';
+      btn.disabled = true;
+    }
+  });
+}
 
-// Console message
-console.log('%c Ola! Voce encontrou meu portfolio! ', 'background: #58a6ff; color: #0d1117; font-size: 14px; padding: 10px; border-radius: 5px;');
-console.log('%c Desenvolvido por Vinicius de Souza Lacerda ', 'color: #8b949e; font-size: 12px;');
+/* ── Console easter egg ── */
+console.log(
+  '%c ✦ RAPHAEL BARUCK ',
+  'background:#c8ff00;color:#0c0c0c;font-weight:800;font-size:16px;padding:8px 16px;border-radius:2px;'
+);
+console.log('%c Dev Full-Stack & Founder · Future Magnorum', 'color:#7a7a7a;font-size:12px;');
+console.log('%c raphabaruck@gmail.com', 'color:#c8ff00;font-size:11px;');
