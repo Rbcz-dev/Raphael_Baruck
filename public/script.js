@@ -44,6 +44,8 @@ function closeMobileNav() {
   document.body.style.overflow = '';
 }
 
+hamburger && hamburger.addEventListener('click', toggleMobileNav);
+
 /* Close on ESC */
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMobileNav(); });
 
@@ -53,6 +55,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     const target = document.querySelector(this.getAttribute('href'));
     if (!target) return;
     e.preventDefault();
+    closeMobileNav();
     const offset = header.offsetHeight + 16;
     window.scrollTo({ top: target.offsetTop - offset, behavior: 'smooth' });
   });
@@ -67,7 +70,7 @@ const revealObserver = new IntersectionObserver(entries => {
       revealObserver.unobserve(entry.target);
     }
   });
-}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+}, { threshold: 0.08, rootMargin: '0px 0px -30px 0px' });
 revealEls.forEach(el => revealObserver.observe(el));
 
 /* ── Skill bars ── */
@@ -83,7 +86,7 @@ const skillObserver = new IntersectionObserver(entries => {
       skillObserver.unobserve(entry.target);
     }
   });
-}, { threshold: 0.3 });
+}, { threshold: 0.2 });
 
 document.querySelectorAll('.skill-cat').forEach(cat => skillObserver.observe(cat));
 
@@ -106,7 +109,6 @@ sections.forEach(s => activeObserver.observe(s));
 
 /* ── Animated counter (hero stats) ── */
 function animateCount(el, target, duration = 1200) {
-  const isFloat = target % 1 !== 0;
   const suffix = el.dataset.suffix || '';
   let start = null;
   const step = ts => {
@@ -126,7 +128,6 @@ const statObserver = new IntersectionObserver(entries => {
       entry.target.querySelectorAll('.hero-stat-num').forEach(num => {
         const raw = num.textContent.replace(/\D/g,'');
         const plus = num.textContent.includes('+');
-        const orig = num.textContent;
         if (raw) {
           animateCount(num, parseInt(raw), 1000);
           if (plus) setTimeout(() => { num.textContent = raw + '+'; }, 1050);
@@ -140,8 +141,8 @@ const statObserver = new IntersectionObserver(entries => {
 const heroStats = document.querySelector('.hero-stats');
 if (heroStats) statObserver.observe(heroStats);
 
-/* ── Project cards — subtle tilt on hover (desktop) ── */
-if (window.matchMedia('(hover:hover)').matches) {
+/* ── Project cards — subtle tilt on hover (desktop only) ── */
+if (window.matchMedia('(hover:hover) and (pointer:fine)').matches) {
   document.querySelectorAll('.project-card').forEach(card => {
     card.addEventListener('mousemove', e => {
       const rect = card.getBoundingClientRect();
@@ -170,7 +171,7 @@ if (form) {
 /* ── Console easter egg ── */
 console.log(
   '%c ✦ RAPHAEL BARUCK ',
-  'background:#c8ff00;color:#0c0c0c;font-weight:800;font-size:16px;padding:8px 16px;border-radius:2px;'
+  'background:#D4AF37;color:#0c0c0c;font-weight:800;font-size:16px;padding:8px 16px;border-radius:2px;'
 );
-console.log('%c Dev Full-Stack & Founder · Future Magnorum', 'color:#7a7a7a;font-size:12px;');
-console.log('%c raphabaruck@gmail.com', 'color:#c8ff00;font-size:11px;');
+console.log('%c Dev Full-Stack & Founder · Magnorum', 'color:#7a7a7a;font-size:12px;');
+console.log('%c raphabaruck@gmail.com', 'color:#D4AF37;font-size:11px;');
